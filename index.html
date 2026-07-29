@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach IA de Ajedrez V4</title>
+    <title>Coach IA de Ajedrez V5 - Animado</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -22,12 +22,31 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
+        
+        /* --- ANIMACIONES --- */
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px var(--highlight); transform: scale(1); }
+            50% { box-shadow: 0 0 20px var(--highlight); transform: scale(1.02); }
+            100% { box-shadow: 0 0 5px var(--highlight); transform: scale(1); }
+        }
+        @keyframes slideDownResult {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        /* ------------------- */
+
         .header {
             text-align: center;
             margin-bottom: 20px;
+            animation: slideUpFade 0.6s ease-out;
         }
-        .header h1 { margin: 0; color: #fff; font-size: 1.8rem; }
+        .header h1 { margin: 0; color: #fff; font-size: 1.8rem; text-shadow: 0 2px 10px rgba(255, 140, 0, 0.3); }
         .header p { color: #888; font-size: 0.9rem; }
         
         .dashboard {
@@ -45,6 +64,15 @@
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.6);
             flex: 1 1 350px;
+            animation: slideUpFade 0.8s ease-out backwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .panel:nth-child(2) { animation-delay: 0.2s; }
+        
+        /* Efecto hover en los paneles */
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
         }
 
         label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -54,39 +82,56 @@
             background: #2a2a2a; color: #fff; font-size: 1rem;
             box-sizing: border-box; transition: 0.3s;
         }
-        input:focus, select:focus { border-color: var(--highlight); outline: none; }
+        input:focus, select:focus { 
+            border-color: var(--highlight); 
+            outline: none; 
+            box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+        }
         
         button {
             background: var(--highlight); color: #fff; border: none;
             font-weight: bold; margin-top: 25px; cursor: pointer;
             font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
         }
-        button:hover { background: #ffa033; }
-        button:disabled { background: #555; cursor: not-allowed; }
+        button:hover { background: #ffa033; transform: scale(1.02); }
+        button:disabled { background: #555; cursor: not-allowed; transform: scale(1); box-shadow: none; }
+        
+        /* Clase que se activa con JS para que el botón palpite */
+        .loading-pulse {
+            animation: pulseGlow 1.5s infinite;
+            background: #ffa033 !important;
+        }
         
         #result {
             margin-top: 20px; padding: 20px;
             background: #252525; border-radius: 8px;
             border-left: 5px solid var(--highlight);
             line-height: 1.6; font-size: 0.95rem;
+            display: none; /* Oculto por defecto */
+        }
+        
+        /* Clase para mostrar el resultado con animación */
+        #result.show-result {
+            display: block;
+            animation: slideDownResult 0.6s ease-out forwards;
         }
         
         #result h1, #result h2, #result h3 { color: #fff; margin-top: 0; }
         #result strong { color: var(--highlight); }
-        #result a { color: #4da6ff; text-decoration: none; font-weight: bold; }
-        #result a:hover { text-decoration: underline; }
+        #result a { color: #4da6ff; text-decoration: none; font-weight: bold; transition: color 0.2s; }
+        #result a:hover { text-decoration: underline; color: #80c1ff; }
         
-        .training-board {
-            text-align: center;
-        }
+        .training-board { text-align: center; }
         iframe {
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             width: 100%;
             max-width: 400px;
             height: 444px;
+            transition: box-shadow 0.3s;
         }
-        .hidden { display: none; }
+        iframe:hover { box-shadow: 0 6px 15px rgba(255, 140, 0, 0.2); }
     </style>
 </head>
 <body>
@@ -127,7 +172,7 @@
 
         <button id="btnGenerate" onclick="generatePlan()">🚀 Analizar Nivel y Generar Plan</button>
         
-        <div id="result" class="hidden"></div>
+        <div id="result"></div>
     </div>
 
     <!-- Panel de Entrenamiento Integrado -->
@@ -158,9 +203,12 @@
 
     localStorage.setItem('groq_key', apiKey);
     localStorage.setItem('chess_user', username);
+    
+    // Activar animaciones de carga
     btn.disabled = true;
+    btn.classList.add('loading-pulse');
     btn.innerText = "⏳ Extrayendo ELO y analizando...";
-    resultDiv.classList.add('hidden');
+    resultDiv.classList.remove('show-result'); // Ocultar para que se vuelva a animar luego
 
     try {
       let statsSummary = "";
@@ -177,7 +225,6 @@
         statsSummary = `Blitz: ${data.chess_blitz?.last?.rating || 'No clasificado'}, Rápido: ${data.chess_rapid?.last?.rating || 'No clasificado'}, Puzzles: ${data.tactics?.highest?.rating || 'No clasificado'}`;
       }
 
-      // Prompt actualizado con las exigencias del link y el consejo objetivo
       const prompt = `Actúa como un Entrenador de Ajedrez de Élite carismático, súper motivador y estricto. 
 ESTÁS HABLANDO DIRECTAMENTE CONMIGO (soy tu alumno). ¡Háblame de "tú", NUNCA en tercera persona! 
 Yo juego en ${platform.toUpperCase()} y estas son mis estadísticas de ELO actuales: [${statsSummary}].
@@ -211,19 +258,22 @@ REGLAS ESTRICTAS PARA TU RESPUESTA:
 
       const rawText = groqData.choices[0].message.content;
       
-      // Usamos marked para parsear y le decimos que abra los links en otra pestaña
       const renderer = new marked.Renderer();
       renderer.link = function(href, title, text) {
         return `<a target="_blank" href="${href}">${text}</a>`;
       };
       
       resultDiv.innerHTML = marked.parse(rawText, { renderer: renderer });
-      resultDiv.classList.remove('hidden');
+      
+      // Mostrar con animación
+      resultDiv.classList.add('show-result');
 
     } catch (err) {
       alert("Error: " + err.message);
     } finally {
+      // Quitar animaciones de carga
       btn.disabled = false;
+      btn.classList.remove('loading-pulse');
       btn.innerText = "🚀 Analizar Nivel y Generar Plan";
     }
   }
