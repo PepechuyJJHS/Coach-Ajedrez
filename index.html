@@ -1,76 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coach IA de Ajedrez - Lichess</title>
-  <style>
-    :root {
-      --bg: #161512;
-      --card: #262421;
-      --accent: #bababa;
-      --button: #363431;
-      --text: #bababa;
-      --highlight: #629924;
-    }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 15px;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
-      max-width: 500px;
-      width: 100%;
-      background: var(--card);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-    h1 { text-align: center; color: #fff; font-size: 1.5rem; margin-bottom: 20px; }
-    label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.9rem; }
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 5px;
-      border: 1px solid #403d39;
-      background: #1e1c18;
-      color: #fff;
-      box-sizing: border-box;
-      font-size: 1rem;
-    }
-    button {
-      background: var(--highlight);
-      border: none;
-      font-weight: bold;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    button:disabled { opacity: 0.5; }
-    .api-link { font-size: 0.8rem; color: #3692e7; text-decoration: none; display: inline-block; margin-top: 4px; }
-    #result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #1e1c18;
-      border-radius: 5px;
-      border-left: 4px solid var(--highlight);
-      white-space: pre-wrap;
-      line-height: 1.5;
-    }
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach de Ajedrez IA - Lichess & Chess.com</title>
+    <style>
+        :root {
+            --bg: #161512;
+            --card: #262421;
+            --text: #bababa;
+            --highlight: #629924;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        h1 { text-align: center; color: #fff; font-size: 1.4rem; margin-bottom: 10px; }
+        p { text-align: center; font-size: 0.85rem; color: #888; margin-top: 0; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9rem; color: #ccc; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border-radius: 5px;
+            border: 1px solid #403d39;
+            background: #1e1c18;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background: var(--highlight);
+            border: none;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:disabled { opacity: 0.5; }
+        .api-link { font-size: 0.8rem; color: #3692e7; text-decoration: none; display: inline-block; margin-top: 4px; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1e1c18;
+            border-radius: 5px;
+            border-left: 4px solid var(--highlight);
+            white-space: pre-wrap;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
 <div class="container">
   <h1>♟️ Coach IA de Ajedrez</h1>
+  <p>Compatible con Lichess y Chess.com</p>
   
-  <label for="username">Usuario de Lichess:</label>
-  <input type="text" id="username" placeholder="Ej: Pepechuy">
+  <label for="platform">Selecciona tu plataforma:</label>
+  <select id="platform">
+    <option value="lichess">Lichess</option>
+    <option value="chesscom">Chess.com</option>
+  </select>
+
+  <label for="username">Nombre de usuario:</label>
+  <input type="text" id="username" placeholder="Tu usuario en la plataforma">
 
   <label for="apiKey">Tu API Key de Gemini (Gratis):</label>
   <input type="password" id="apiKey" placeholder="Pega tu API key aquí">
@@ -88,7 +95,7 @@
     <option value="Mejorar visión táctica y no colgar piezas">Mejorar visión táctica</option>
     <option value="Aprender o repasar aperturas">Estudiar aperturas</option>
     <option value="Entrenar finales básicos">Entrenar finales</option>
-    <option value="Aprender a gestionar mejor el tiempo en Blitz">Gestión del tiempo</option>
+    <option value="Aprender a gestionar mejor el tiempo">Gestión del tiempo</option>
   </select>
 
   <button id="btnGenerate" onclick="generatePlan()">Generar Plan Personalizado</button>
@@ -97,10 +104,10 @@
 </div>
 
 <script>
-  // Cargar clave guardada si existe
   document.getElementById('apiKey').value = localStorage.getItem('gemini_key') || '';
 
   async function generatePlan() {
+    const platform = document.getElementById('platform').value;
     const username = document.getElementById('username').value.trim();
     const apiKey = document.getElementById('apiKey').value.trim();
     const time = document.getElementById('time').value;
@@ -109,33 +116,44 @@
     const btn = document.getElementById('btnGenerate');
 
     if (!username || !apiKey) {
-      alert("Por favor ingresa tu usuario de Lichess y tu API Key de Gemini.");
+      alert("Por favor ingresa tu nombre de usuario y tu API Key de Gemini.");
       return;
     }
 
     localStorage.setItem('gemini_key', apiKey);
     btn.disabled = true;
-    btn.innerText = "Consultando a Lichess y al Coach...";
+    btn.innerText = "Consultando datos y al Coach...";
     resultDiv.classList.add('hidden');
 
     try {
-      // 1. Obtener datos de Lichess
-      const lichessRes = await fetch(`https://lichess.org/api/user/${username}`);
-      if (!lichessRes.ok) throw new Error("No se encontró el usuario en Lichess.");
-      const userData = await fetchLichessStats(username);
+      let statsSummary = "";
 
-      // 2. Crear prompt para Gemini
+      if (platform === 'lichess') {
+        const res = await fetch(`https://lichess.org/api/user/${username}`);
+        if (!res.ok) throw new Error("No se encontró el usuario en Lichess.");
+        const data = await res.json();
+        const blitz = data.perfs?.blitz?.rating || 'N/A';
+        const rapid = data.perfs?.rapid?.rating || 'N/A';
+        const puzzles = data.perfs?.puzzle?.rating || 'N/A';
+        statsSummary = `Lichess - Blitz: ${blitz}, Rápido: ${rapid}, Puzzles: ${puzzles}`;
+      } else {
+        const res = await fetch(`https://api.chess.com/pub/player/${username}/stats`);
+        if (!res.ok) throw new Error("No se encontró el usuario en Chess.com.");
+        const data = await res.json();
+        const blitz = data.chess_blitz?.last?.rating || 'N/A';
+        const rapid = data.chess_rapid?.last?.rating || 'N/A';
+        const bullets = data.chess_bullet?.last?.rating || 'N/A';
+        statsSummary = `Chess.com - Blitz: ${blitz}, Rápido: ${rapid}, Bullet: ${bullets}`;
+      }
+
       const prompt = `Actúa como un Gran Maestro y Entrenador Profesional de Ajedrez. 
-Analiza al jugador "${username}" con estos datos de Lichess:
-- ELO Blitz: ${userData.blitz}
-- ELO Rápido: ${userData.rapid}
-- ELO Puzzles (Táctica): ${userData.puzzles}
+Analiza al jugador "${username}" de la plataforma ${platform.toUpperCase()} con estas estadísticas:
+- ${statsSummary}
 
 El jugador tiene ${time} disponibles hoy y su objetivo es: "${goal}".
 
-Crea una rutina de entrenamiento estricta, motivadora y paso a paso para hoy. Incluye tiempos exactos para cada actividad (calentamiento, ejercicios, estudio o partidas) y dale un consejo técnico clave adaptado a su nivel actual. Sé directo y estructurado.`;
+Crea una rutina de entrenamiento estricta, motivadora y paso a paso para hoy. Incluye tiempos exactos para cada actividad y dale un consejo técnico clave adaptado a su nivel actual. Sé directo y estructurado.`;
 
-      // 3. Llamar a la API de Gemini
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,20 +175,6 @@ Crea una rutina de entrenamiento estricta, motivadora y paso a paso para hoy. In
     } finally {
       btn.disabled = false;
       btn.innerText = "Generar Plan Personalizado";
-    }
-  }
-
-  async function fetchLichessStats(username) {
-    try {
-      const res = await fetch(`https://lichess.org/api/user/${username}`);
-      const data = await res.json();
-      return {
-        blitz: data.perfs?.blitz?.rating || 'Sin rating',
-        rapid: data.perfs?.rapid?.rating || 'Sin rating',
-        puzzles: data.perfs?.puzzle?.rating || 'Sin rating'
-      };
-    } catch {
-      return { blitz: 'N/A', rapid: 'N/A', puzzles: 'N/A' };
     }
   }
 </script>
