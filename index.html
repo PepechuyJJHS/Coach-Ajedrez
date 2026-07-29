@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach IA de Ajedrez V2</title>
-    <!-- Librería para que el texto de la IA se vea bonito y no con asteriscos -->
+    <title>Coach IA de Ajedrez V3</title>
+    <!-- Librería para el texto de la IA -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg: #121212;
             --card: #1e1e1e;
             --text: #e0e0e0;
-            --highlight: #7fa650; /* Verde estilo Chess.com */
+            --highlight: #ff8c00; /* Naranja vibrante */
             --accent: #333333;
         }
         body {
@@ -45,7 +45,7 @@
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-            flex: 1 1 350px; /* Se adapta a móvil o PC */
+            flex: 1 1 350px;
         }
 
         label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -62,7 +62,7 @@
             font-weight: bold; margin-top: 25px; cursor: pointer;
             font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        button:hover { background: #8bc255; }
+        button:hover { background: #ffa033; } /* Naranja más claro al pasar el mouse */
         button:disabled { background: #555; cursor: not-allowed; }
         
         #result {
@@ -72,7 +72,6 @@
             line-height: 1.6; font-size: 0.95rem;
         }
         
-        /* Estilos para el markdown generado */
         #result h1, #result h2, #result h3 { color: #fff; margin-top: 0; }
         #result strong { color: var(--highlight); }
         
@@ -92,55 +91,53 @@
 <body>
 
 <div class="header">
-    <h1>♟️ Pro Coach IA</h1>
+    <h1>🔥 Pro Coach IA ♟️</h1>
     <p>Entrenamiento Avanzado & Táctica Integrada</p>
 </div>
 
 <div class="dashboard">
     <!-- Panel de Configuración -->
     <div class="panel">
-        <label>Plataforma</label>
+        <label>🎮 Plataforma</label>
         <select id="platform">
             <option value="lichess">Lichess</option>
             <option value="chesscom">Chess.com</option>
         </select>
 
-        <label>Usuario</label>
+        <label>👤 Nombre de Usuario</label>
         <input type="text" id="username" placeholder="Ej: PepechuyJJHS">
 
-        <label>API Key de Groq</label>
+        <label>🔑 API Key de Groq</label>
         <input type="password" id="apiKey" placeholder="gsk_...">
 
-        <label>Tiempo de estudio</label>
+        <label>⏱️ Tiempo de estudio hoy</label>
         <select id="time">
-            <option value="15 minutos">15 Min.</option>
-            <option value="30 minutos" selected>30 Min.</option>
-            <option value="60 minutos">60 Min.</option>
+            <option value="15 minutos">15 Minutos ⚡</option>
+            <option value="30 minutos" selected>30 Minutos 🧠</option>
+            <option value="60 minutos">1 Hora 💪</option>
         </select>
 
-        <label>Enfoque de hoy</label>
+        <label>🎯 ¿Cuál es tu objetivo?</label>
         <select id="goal">
-            <option value="Táctica avanzada y cálculo">Táctica y Cálculo</option>
-            <option value="Repertorio de aperturas">Aperturas</option>
-            <option value="Finales técnicos">Finales</option>
+            <option value="Táctica avanzada y cálculo">Táctica y Cálculo 🧩</option>
+            <option value="Repertorio de aperturas">Aperturas 📖</option>
+            <option value="Finales técnicos">Finales 🏁</option>
         </select>
 
-        <button id="btnGenerate" onclick="generatePlan()">🔥 Analizar Nivel y Generar Plan</button>
+        <button id="btnGenerate" onclick="generatePlan()">🚀 Analizar Nivel y Generar Plan</button>
         
         <div id="result" class="hidden"></div>
     </div>
 
     <!-- Panel de Entrenamiento Integrado -->
     <div class="panel training-board">
-        <label style="margin-bottom: 15px;">Tablero de Práctica (Puzzle del Día)</label>
-        <!-- Iframe oficial de Lichess para jugar directo en tu web -->
+        <label style="margin-bottom: 15px;">🧩 Tablero de Práctica (Puzzle del Día)</label>
         <iframe src="https://lichess.org/training/frame?theme=brown&bg=dark" allowtransparency="true" frameborder="0"></iframe>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Resuelve el problema aquí mismo. Las piezas son arrastrables.</p>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Resuelve el problema aquí mismo sin salir de la página. ✨</p>
     </div>
 </div>
 
 <script>
-  // Guarda tu llave para no tener que pegarla siempre
   document.getElementById('apiKey').value = localStorage.getItem('groq_key') || '';
   document.getElementById('username').value = localStorage.getItem('chess_user') || '';
 
@@ -154,20 +151,19 @@
     const btn = document.getElementById('btnGenerate');
 
     if (!username || !apiKey) {
-      alert("Faltan datos jefe.");
+      alert("⚠️ Faltan datos jefe. Llena tu usuario y API Key.");
       return;
     }
 
     localStorage.setItem('groq_key', apiKey);
     localStorage.setItem('chess_user', username);
     btn.disabled = true;
-    btn.innerText = "Extrayendo ELO y analizando...";
+    btn.innerText = "⏳ Extrayendo ELO y analizando...";
     resultDiv.classList.add('hidden');
 
     try {
       let statsSummary = "";
 
-      // Obteniendo el ELO real
       if (platform === 'lichess') {
         const res = await fetch(`https://lichess.org/api/user/${username}`);
         if (!res.ok) throw new Error("Usuario de Lichess no encontrado.");
@@ -180,16 +176,18 @@
         statsSummary = `Blitz: ${data.chess_blitz?.last?.rating || 'No clasificado'}, Rápido: ${data.chess_rapid?.last?.rating || 'No clasificado'}, Puzzles: ${data.tactics?.highest?.rating || 'No clasificado'}`;
       }
 
-      // El Nuevo Prompt nivel Gran Maestro
-      const prompt = `Actúa como un Entrenador de Ajedrez de Élite y Analista de Datos muy estricto y directo. 
-El jugador "${username}" usa ${platform.toUpperCase()} y tiene este ELO actual: [${statsSummary}].
+      // Prompt modificado para hablar en primera persona y usar emojis
+      const prompt = `Actúa como un Entrenador de Ajedrez de Élite carismático, súper motivador y estricto. 
+ESTÁS HABLANDO DIRECTAMENTE CONMIGO (soy tu alumno). ¡Háblame de "tú", NUNCA en tercera persona! 
+Yo juego en ${platform.toUpperCase()} y estas son mis estadísticas de ELO actuales: [${statsSummary}].
 
 REGLAS ESTRICTAS PARA TU RESPUESTA:
-1. OBLIGATORIO: Menciona explícitamente su nivel de ELO actual en el primer párrafo y evalúa si es principiante, intermedio o avanzado basándote en esos números exactos.
-2. PROHIBIDO dar consejos de novatos como "controla el centro" o "desarrolla tus piezas".
-3. Tienes ${time} para el plan enfocado en: "${goal}".
-4. Dame 1 variante de apertura específica para estudiar o 1 patrón táctico avanzado con nombre (ej. Rayos X, Zugzwang, Sacrificio Griego) adecuado a su ELO numérico.
-5. Usa formato Markdown para que se vea limpio. Sé brutalmente honesto sobre lo que necesita para subir 100 puntos de ELO.`;
+1. OBLIGATORIO: Háblame directo ("tú tienes", "tu ELO es").
+2. Usa bastantes emojis (🚀, 🔥, ♟️, 🧠, etc.) a lo largo de tu respuesta para que sea divertida y súper dinámica.
+3. Menciona mi ELO numérico actual en el primer párrafo y sé brutalmente honesto evaluando mi nivel actual basándote en esos números.
+4. Tienes ${time} para armar mi plan enfocado en: "${goal}".
+5. PROHIBIDO dar consejos básicos (como "controla el centro"). Dame 1 variante de apertura específica o 1 patrón táctico avanzado con nombre adecuado a mi ELO numérico real.
+6. Usa formato Markdown limpio. Dime exactamente qué necesito para subir 100 puntos de ELO.`;
 
       const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -200,7 +198,7 @@ REGLAS ESTRICTAS PARA TU RESPUESTA:
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'user', content: prompt }],
-          temperature: 0.5 // Más frío y analítico
+          temperature: 0.6
         })
       });
 
@@ -208,7 +206,6 @@ REGLAS ESTRICTAS PARA TU RESPUESTA:
 
       if (groqData.error) throw new Error(groqData.error.message);
 
-      // Usando la librería Marked para que el texto se renderice bonito en HTML
       const rawText = groqData.choices[0].message.content;
       resultDiv.innerHTML = marked.parse(rawText);
       resultDiv.classList.remove('hidden');
@@ -217,11 +214,10 @@ REGLAS ESTRICTAS PARA TU RESPUESTA:
       alert("Error: " + err.message);
     } finally {
       btn.disabled = false;
-      btn.innerText = "🔥 Analizar Nivel y Generar Plan";
+      btn.innerText = "🚀 Analizar Nivel y Generar Plan";
     }
   }
 </script>
 
 </body>
 </html>
- 
