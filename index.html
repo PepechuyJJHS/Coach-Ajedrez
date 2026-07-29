@@ -154,7 +154,7 @@ El jugador tiene ${time} disponibles hoy y su objetivo es: "${goal}".
 
 Crea una rutina de entrenamiento estricta, motivadora y paso a paso para hoy. Incluye tiempos exactos para cada actividad y dale un consejo técnico clave adaptado a su nivel actual. Sé directo y estructurado.`;
 
-      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
