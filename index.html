@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach IA de Ajedrez V3</title>
-    <!-- Librería para el texto de la IA -->
+    <title>Coach IA de Ajedrez V4</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg: #121212;
             --card: #1e1e1e;
             --text: #e0e0e0;
-            --highlight: #ff8c00; /* Naranja vibrante */
+            --highlight: #ff8c00;
             --accent: #333333;
         }
         body {
@@ -62,7 +61,7 @@
             font-weight: bold; margin-top: 25px; cursor: pointer;
             font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        button:hover { background: #ffa033; } /* Naranja más claro al pasar el mouse */
+        button:hover { background: #ffa033; }
         button:disabled { background: #555; cursor: not-allowed; }
         
         #result {
@@ -74,6 +73,8 @@
         
         #result h1, #result h2, #result h3 { color: #fff; margin-top: 0; }
         #result strong { color: var(--highlight); }
+        #result a { color: #4da6ff; text-decoration: none; font-weight: bold; }
+        #result a:hover { text-decoration: underline; }
         
         .training-board {
             text-align: center;
@@ -133,7 +134,7 @@
     <div class="panel training-board">
         <label style="margin-bottom: 15px;">🧩 Tablero de Práctica (Puzzle del Día)</label>
         <iframe src="https://lichess.org/training/frame?theme=brown&bg=dark" allowtransparency="true" frameborder="0"></iframe>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Resuelve el problema aquí mismo sin salir de la página. ✨</p>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Haz clic en el tablero para ir directo al Puzzle del Día en Lichess. ✨</p>
     </div>
 </div>
 
@@ -176,18 +177,20 @@
         statsSummary = `Blitz: ${data.chess_blitz?.last?.rating || 'No clasificado'}, Rápido: ${data.chess_rapid?.last?.rating || 'No clasificado'}, Puzzles: ${data.tactics?.highest?.rating || 'No clasificado'}`;
       }
 
-      // Prompt modificado para hablar en primera persona y usar emojis
+      // Prompt actualizado con las exigencias del link y el consejo objetivo
       const prompt = `Actúa como un Entrenador de Ajedrez de Élite carismático, súper motivador y estricto. 
 ESTÁS HABLANDO DIRECTAMENTE CONMIGO (soy tu alumno). ¡Háblame de "tú", NUNCA en tercera persona! 
 Yo juego en ${platform.toUpperCase()} y estas son mis estadísticas de ELO actuales: [${statsSummary}].
 
 REGLAS ESTRICTAS PARA TU RESPUESTA:
 1. OBLIGATORIO: Háblame directo ("tú tienes", "tu ELO es").
-2. Usa bastantes emojis (🚀, 🔥, ♟️, 🧠, etc.) a lo largo de tu respuesta para que sea divertida y súper dinámica.
+2. Usa bastantes emojis (🚀, 🔥, ♟️, 🧠, etc.) a lo largo de tu respuesta.
 3. Menciona mi ELO numérico actual en el primer párrafo y sé brutalmente honesto evaluando mi nivel actual basándote en esos números.
 4. Tienes ${time} para armar mi plan enfocado en: "${goal}".
 5. PROHIBIDO dar consejos básicos (como "controla el centro"). Dame 1 variante de apertura específica o 1 patrón táctico avanzado con nombre adecuado a mi ELO numérico real.
-6. Usa formato Markdown limpio. Dime exactamente qué necesito para subir 100 puntos de ELO.`;
+6. ENLACE DE PRÁCTICA OBLIGATORIO: Al final de tu recomendación, proporcióname un enlace exacto y funcional de Lichess que coincida con el tema que me pusiste a estudiar (por ejemplo: https://lichess.org/training/mate, https://lichess.org/training/endgame, https://lichess.org/training/defensive, etc.).
+7. CONSEJO EXTRA Y OBJETIVO: Cierra tu respuesta con una sección llamada "**💡 Consejo Extra:**" donde me des una directriz sumamente objetiva, fría y clara sobre cómo mejorar mi cálculo mental o mi postura psicológica frente al tablero, sin rodeos.
+8. Usa formato Markdown limpio.`;
 
       const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -207,7 +210,14 @@ REGLAS ESTRICTAS PARA TU RESPUESTA:
       if (groqData.error) throw new Error(groqData.error.message);
 
       const rawText = groqData.choices[0].message.content;
-      resultDiv.innerHTML = marked.parse(rawText);
+      
+      // Usamos marked para parsear y le decimos que abra los links en otra pestaña
+      const renderer = new marked.Renderer();
+      renderer.link = function(href, title, text) {
+        return `<a target="_blank" href="${href}">${text}</a>`;
+      };
+      
+      resultDiv.innerHTML = marked.parse(rawText, { renderer: renderer });
       resultDiv.classList.remove('hidden');
 
     } catch (err) {
