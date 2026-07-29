@@ -79,9 +79,9 @@
   <label for="username">Nombre de usuario:</label>
   <input type="text" id="username" placeholder="Tu usuario en la plataforma">
 
-  <label for="apiKey">Tu API Key de Gemini (Gratis):</label>
-  <input type="password" id="apiKey" placeholder="Pega tu API key aquí">
-  <a class="api-link" href="https://aistudio.google.com/app/apikey" target="_blank">👉 Consigue tu API Key gratis en Google AI Studio</a>
+  <label for="apiKey">Tu API Key de Groq (Gratis):</label>
+  <input type="password" id="apiKey" placeholder="Pega tu API key de Groq (gsk_...)">
+  <a class="api-link" href="https://console.groq.com/keys" target="_blank">👉 Consigue tu API Key gratis en Groq Console</a>
 
   <label for="time">Tiempo disponible hoy:</label>
   <select id="time">
@@ -104,7 +104,7 @@
 </div>
 
 <script>
-  document.getElementById('apiKey').value = localStorage.getItem('gemini_key') || '';
+  document.getElementById('apiKey').value = localStorage.getItem('groq_key') || '';
 
   async function generatePlan() {
     const platform = document.getElementById('platform').value;
@@ -116,11 +116,11 @@
     const btn = document.getElementById('btnGenerate');
 
     if (!username || !apiKey) {
-      alert("Por favor ingresa tu usuario y tu API Key de Gemini.");
+      alert("Por favor ingresa tu nombre de usuario y tu API Key de Groq.");
       return;
     }
 
-    localStorage.setItem('gemini_key', apiKey);
+    localStorage.setItem('groq_key', apiKey);
     btn.disabled = true;
     btn.innerText = "Consultando datos y al Coach...";
     resultDiv.classList.add('hidden');
@@ -154,20 +154,25 @@ El jugador tiene ${time} disponibles hoy y su objetivo es: "${goal}".
 
 Crea una rutina de entrenamiento estricta, motivadora y paso a paso para hoy. Incluye tiempos exactos para cada actividad y dale un consejo técnico clave adaptado a su nivel actual. Sé directo y estructurado.`;
 
-      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-
+      const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }]
+        })
       });
 
-      const geminiData = await geminiRes.json();
-      
-      if (geminiData.error) {
-        throw new Error(geminiData.error.message);
+      const groqData = await groqRes.json();
+
+      if (groqData.error) {
+        throw new Error(groqData.error.message);
       }
 
-      const reply = geminiData.candidates[0].content.parts[0].text;
+      const reply = groqData.choices[0].message.content;
       resultDiv.innerText = reply;
       resultDiv.classList.remove('hidden');
 
