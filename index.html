@@ -34,6 +34,12 @@
             width: 350px;
             /* 🌀 Animación de entrada */
             animation: deslizarArriba 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Ocultar elementos suavemente */
+        .oculto {
+            display: none !important;
         }
 
         h2 {
@@ -71,6 +77,21 @@
             box-shadow: 0 0 8px var(--naranja-brillante);
         }
 
+        .link-api {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--naranja-brillante);
+            text-decoration: none;
+            text-align: right;
+            transition: 0.2s;
+        }
+
+        .link-api:hover {
+            color: #ff8533;
+            text-decoration: underline;
+        }
+
         button {
             background: var(--naranja-brillante);
             color: white;
@@ -82,7 +103,10 @@
             border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
-            /* ⚡ Animación de pulso constante */
+            margin-top: 10px;
+        }
+
+        .btn-principal {
             animation: latido 2s infinite;
         }
 
@@ -92,12 +116,15 @@
             box-shadow: 0 0 15px var(--naranja-brillante);
         }
 
-        #mensaje {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #00ff00;
-            display: none;
-            animation: aparecer 0.5s ease-in;
+        .btn-secundario {
+            background: #444;
+            animation: none;
+            margin-top: 20px;
+        }
+
+        .btn-secundario:hover {
+            background: #666;
+            box-shadow: none;
         }
 
         /* 🎬 Keyframes para las Animaciones */
@@ -111,16 +138,32 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
-
+        
         @keyframes aparecer {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Estilo para la pantalla principal de la app */
+        #pantalla-principal {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #000;
+            animation: aparecer 0.6s ease-out forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="contenedor">
+    <!-- 🚪 PANTALLA DE ENTRADA / VINCULACIÓN -->
+    <div class="contenedor" id="pantalla-login">
         <h2>⚡ Conexión Épica ♟️</h2>
         
         <div class="input-group">
@@ -131,46 +174,77 @@
         <div class="input-group">
             <label for="groqApi">🔑 API Key de Groq:</label>
             <input type="password" id="groqApi" placeholder="gsk_tUaP1k...">
+            <!-- AQUÍ ESTÁ EL LINK DE VUELTA -->
+            <a href="https://console.groq.com/keys" target="_blank" class="link-api">¿No tienes API? Créala aquí 🚀</a>
         </div>
 
-        <button onclick="guardarDatos()">¡Vincular Datos! 🚀</button>
+        <button class="btn-principal" onclick="guardarDatos()">¡Vincular Datos! 🚀</button>
+    </div>
+
+    <!-- 🎮 PANTALLA PRINCIPAL (Lo de "adentro") -->
+    <div id="pantalla-principal" class="oculto">
+        <h2>🔥 Panel Central ♟️</h2>
+        <p>¡Bienvenido, <strong id="nombre-mostrado" style="color: var(--naranja-brillante);">Jugador</strong>! Tus datos están listos.</p>
         
-        <p id="mensaje">✅ ¡Datos guardados en este navegador! 🔥</p>
+        <div style="flex-grow: 1; width: 100%; border: 2px dashed #444; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #666; margin: 20px 0;">
+            <h3>🚧 Aquí va todo el resto de tu código y lógica (Tablero, Chat, etc.) 🚧</h3>
+        </div>
+
+        <button class="btn-secundario" onclick="cerrarSesion()">🔄 Cambiar API o Usuario</button>
     </div>
 
     <script>
-        // 🛠️ Al cargar la página, revisamos si ya hay datos guardados localmente
+        // Elementos de la interfaz
+        const pantallaLogin = document.getElementById("pantalla-login");
+        const pantallaPrincipal = document.getElementById("pantalla-principal");
+        const nombreMostrado = document.getElementById("nombre-mostrado");
+
+        // 🛠️ Al cargar, revisamos si ya hay datos
         document.addEventListener("DOMContentLoaded", () => {
             const usuarioGuardado = localStorage.getItem("chessUser");
             const apiGuardada = localStorage.getItem("groqApi");
 
-            if (usuarioGuardado) document.getElementById("chessUser").value = usuarioGuardado;
-            if (apiGuardada) document.getElementById("groqApi").value = apiGuardada;
+            if (usuarioGuardado && apiGuardada) {
+                // Si ya hay datos, saltamos directo a lo de "adentro"
+                mostrarAppPrincipal(usuarioGuardado);
+            }
         });
 
-        // 💾 Función para guardar los datos
+        // 💾 Guardar datos y pasar a la siguiente pantalla
         function guardarDatos() {
-            const chessUser = document.getElementById("chessUser").value;
-            const groqApi = document.getElementById("groqApi").value;
+            const chessUser = document.getElementById("chessUser").value.trim();
+            const groqApi = document.getElementById("groqApi").value.trim();
 
             if (chessUser === "" || groqApi === "") {
-                alert("⚠️ ¡Eh! Tienes que llenar ambos campos, no hagas trampa.");
+                alert("⚠️ ¡Eh! Tienes que llenar ambos campos para entrar.");
                 return;
             }
 
-            // Guardado Local (Solo funciona en este dispositivo/navegador)
-            // 🛑 RECORDATORIO: Para hacerlo multidispositivo, aquí tendrías que 
-            // enviar estos datos a una Base de Datos (ej. Firebase) atados a un Login.
             localStorage.setItem("chessUser", chessUser);
             localStorage.setItem("groqApi", groqApi);
 
-            // Mostrar mensaje de éxito con animación
-            const msj = document.getElementById("mensaje");
-            msj.style.display = "block";
+            mostrarAppPrincipal(chessUser);
+        }
+
+        // 🎬 Transición a la pantalla principal
+        function mostrarAppPrincipal(usuario) {
+            pantallaLogin.classList.add("oculto");
+            pantallaPrincipal.classList.remove("oculto");
+            nombreMostrado.textContent = usuario;
+        }
+
+        // 🔄 Borrar datos y volver al inicio
+        function cerrarSesion() {
+            localStorage.removeItem("chessUser");
+            localStorage.removeItem("groqApi");
             
-            setTimeout(() => {
-                msj.style.display = "none";
-            }, 3000);
+            // Limpiar inputs
+            document.getElementById("chessUser").value = "";
+            document.getElementById("groqApi").value = "";
+
+            // Cambiar pantallas
+            pantallaPrincipal.classList.add("oculto");
+            pantallaLogin.classList.remove("oculto");
         }
     </script>
 
