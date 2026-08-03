@@ -3,335 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Coach IA - Entrenamiento de Ajedrez</title>
-    <!-- Importar librería para Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>🔥 Modo Dinámico Chess + Groq 🚀</title>
     <style>
-        /* Diseño Oscuro y Moderno */
+        /* 🧡 Diseño Naranja Brillante y Dinámico */
+        :root {
+            --naranja-brillante: #ff6a00;
+            --fondo-oscuro: #121212;
+            --texto-claro: #ffffff;
+        }
+
         body {
+            background-color: var(--fondo-oscuro);
+            color: var(--texto-claro);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-        h1 {
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        .subtitle {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .container {
+
+        .contenedor {
             background: #1e1e1e;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            width: 100%;
-            max-width: 700px;
-            margin-bottom: 30px;
-            box-sizing: border-box;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px var(--naranja-brillante);
+            text-align: center;
+            width: 350px;
+            /* 🌀 Animación de entrada */
+            animation: deslizarArriba 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
+
+        h2 {
+            color: var(--naranja-brillante);
+            text-shadow: 0 0 10px var(--naranja-brillante);
+            margin-bottom: 20px;
+        }
+
         .input-group {
             margin-bottom: 15px;
+            text-align: left;
         }
+
         label {
+            font-weight: bold;
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
             color: #ccc;
         }
-        input, select {
+
+        input {
             width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #2a2a2a;
-            color: #fff;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #64B5F6;
-        }
-        .api-link {
-            display: block;
-            margin-top: 8px;
-            color: #64B5F6;
-            text-decoration: none;
-            font-size: 0.85rem;
-        }
-        .api-link:hover {
-            text-decoration: underline;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 6px;
-            background-color: #1976D2;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #1565C0;
-        }
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
-        .output-box {
-            margin-top: 25px;
-            padding: 20px;
-            background: #252525;
+            padding: 10px;
+            border: 2px solid #444;
             border-radius: 8px;
-            border-left: 4px solid #1976D2;
-            display: none;
-            line-height: 1.6;
-        }
-        .output-box h1, .output-box h2, .output-box h3 {
-            color: #64B5F6;
-            margin-top: 0;
-        }
-        .output-box a {
-            color: #81C784;
-            text-decoration: none;
-        }
-        .output-box a:hover {
-            text-decoration: underline;
-        }
-        /* Estilos para la sección de comentarios */
-        .comments-section {
-            width: 100%;
-            max-width: 700px;
-            background: #1e1e1e;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            background: #2a2a2a;
+            color: white;
+            outline: none;
             box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--naranja-brillante);
+            box-shadow: 0 0 8px var(--naranja-brillante);
+        }
+
+        button {
+            background: var(--naranja-brillante);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            /* ⚡ Animación de pulso constante */
+            animation: latido 2s infinite;
+        }
+
+        button:hover {
+            background: #ff8533;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--naranja-brillante);
+        }
+
+        #mensaje {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #00ff00;
+            display: none;
+            animation: aparecer 0.5s ease-in;
+        }
+
+        /* 🎬 Keyframes para las Animaciones */
+        @keyframes deslizarArriba {
+            0% { transform: translateY(100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes latido {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes aparecer {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <h1>♟️ Pro Coach IA</h1>
-    <div class="subtitle">Entrenador de Ajedrez Personalizado con IA y Lichess API</div>
-
-    <div class="container">
-        <!-- 1. Usuario de Lichess -->
-        <div class="input-group">
-            <label for="username">Usuario de Lichess:</label>
-            <input type="text" id="username" placeholder="Ej. MagnusCarlsen">
-        </div>
-
-        <!-- 2. API Key de Groq con el enlace de ayuda -->
-        <div class="input-group">
-            <label for="groqKey">Clave API de Groq:</label>
-            <input type="password" id="groqKey" placeholder="gsk_...">
-            <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" class="api-link">
-                🔑 ¿No tienes una clave? Haz clic aquí para obtener tu API Key gratuita en Groq
-            </a>
-        </div>
-
-        <!-- 3. Tiempo disponible -->
-        <div class="input-group">
-            <label for="timeAvailable">Tiempo disponible hoy:</label>
-            <select id="timeAvailable">
-                <option value="15 minutos">15 Minutos (Rápido)</option>
-                <option value="30 minutos">30 Minutos (Intermedio)</option>
-                <option value="1 hora">1 Hora (Intensivo)</option>
-            </select>
-        </div>
-
-        <!-- 4. Enfoque del entrenamiento -->
-        <div class="input-group">
-            <label for="focusArea">Área de enfoque:</label>
-            <select id="focusArea">
-                <option value="Táctica y Cálculo">Táctica y Cálculo</option>
-                <option value="Aperturas">Aperturas</option>
-                <option value="Finales">Finales Técnicos</option>
-                <option value="General">Equilibrado (Revisión general)</option>
-            </select>
-        </div>
-
-        <!-- Botón para generar -->
-        <button id="btnGenerar" onclick="iniciarAnalisis()">🚀 Analizar ELO y Partidas</button>
-
-        <!-- Contenedor donde aparecerá la respuesta de la IA -->
-        <div id="planOutput" class="output-box"></div>
-    </div>
-
-    <!-- Panel de Comentarios de Giscus -->
-    <div class="comments-section">
-        <h3 style="color: #fff; margin-top: 0; text-align: center;">💬 Comentarios y Opiniones</h3>
-        <p style="color: #888; font-size: 0.85rem; text-align: center; margin-bottom: 20px;">¡Déjame saber qué te pareció el Coach IA o qué mejoras te gustaría ver!</p>
+    <div class="contenedor">
+        <h2>⚡ Conexión Épica ♟️</h2>
         
-        <!-- CÓDIGO DE GISCUS CON TUS DATOS INTEGRADOS -->
-        <script src="https://giscus.app/client.js"
-                data-repo="PepechuyJJHS/Coach-Ajedrez"
-                data-repo-id="R_kgDOTnim2g"
-                data-category="General"
-                data-category-id="DIC_kwDOTnim2s4DCRUp"
-                data-mapping="pathname"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="dark_high_contrast"
-                data-lang="es"
-                crossorigin="anonymous"
-                async>
-        </script>
+        <div class="input-group">
+            <label for="chessUser">👑 Usuario de Chess.com / Lichess:</label>
+            <input type="text" id="chessUser" placeholder="Ej. MagnusCarlsen">
+        </div>
+
+        <div class="input-group">
+            <label for="groqApi">🔑 API Key de Groq:</label>
+            <input type="password" id="groqApi" placeholder="gsk_tUaP1k...">
+        </div>
+
+        <button onclick="guardarDatos()">¡Vincular Datos! 🚀</button>
+        
+        <p id="mensaje">✅ ¡Datos guardados en este navegador! 🔥</p>
     </div>
 
-    <!-- SCRIPT PRINCIPAL DE LA LÓGICA -->
     <script>
-        // Función para descargar las últimas 10 partidas del usuario desde Lichess
-        async function obtenerPartidasRecientes(usuario) {
-            try {
-                const response = await fetch(`https://lichess.org/api/games/user/${usuario}?max=10&opening=true`, {
-                    headers: { 'Accept': 'application/x-ndjson' }
-                });
+        // 🛠️ Al cargar la página, revisamos si ya hay datos guardados localmente
+        document.addEventListener("DOMContentLoaded", () => {
+            const usuarioGuardado = localStorage.getItem("chessUser");
+            const apiGuardada = localStorage.getItem("groqApi");
 
-                if (!response.ok) return [];
+            if (usuarioGuardado) document.getElementById("chessUser").value = usuarioGuardado;
+            if (apiGuardada) document.getElementById("groqApi").value = apiGuardada;
+        });
 
-                const texto = await response.text();
-                const lineas = texto.trim().split('\n').filter(Boolean);
-                
-                return lineas.map(linea => {
-                    try {
-                        const juego = JSON.parse(linea);
-                        const soyBlancas = juego.players.white.user?.name.toLowerCase() === usuario.toLowerCase();
-                        return {
-                            apertura: juego.opening ? juego.opening.name : 'Desconocida',
-                            resultado: juego.winner ? (juego.winner === (soyBlancas ? 'white' : 'black') ? 'Victoria' : 'Derrota') : 'Tablas',
-                            color: soyBlancas ? 'Blancas' : 'Negras'
-                        };
-                    } catch (e) {
-                        return null;
-                    }
-                }).filter(Boolean);
-            } catch (error) {
-                console.error("Error al obtener partidas:", error);
-                return [];
-            }
-        }
+        // 💾 Función para guardar los datos
+        function guardarDatos() {
+            const chessUser = document.getElementById("chessUser").value;
+            const groqApi = document.getElementById("groqApi").value;
 
-        // Función principal que se ejecuta al presionar el botón
-        async function iniciarAnalisis() {
-            const usuario = document.getElementById('username').value.trim();
-            const groqKey = document.getElementById('groqKey').value.trim();
-            const tiempo = document.getElementById('timeAvailable').value;
-            const enfoque = document.getElementById('focusArea').value;
-            const btn = document.getElementById('btnGenerar');
-            const output = document.getElementById('planOutput');
-
-            if (!usuario || !groqKey) {
-                alert("Por favor ingresa tu usuario de Lichess y tu clave de Groq.");
+            if (chessUser === "" || groqApi === "") {
+                alert("⚠️ ¡Eh! Tienes que llenar ambos campos, no hagas trampa.");
                 return;
             }
 
-            // Cambiar el estado del botón
-            btn.innerText = "⏳ Extrayendo datos de Lichess...";
-            btn.disabled = true;
-            output.style.display = "none";
-            output.innerHTML = "";
+            // Guardado Local (Solo funciona en este dispositivo/navegador)
+            // 🛑 RECORDATORIO: Para hacerlo multidispositivo, aquí tendrías que 
+            // enviar estos datos a una Base de Datos (ej. Firebase) atados a un Login.
+            localStorage.setItem("chessUser", chessUser);
+            localStorage.setItem("groqApi", groqApi);
 
-            try {
-                // 1. Obtener ELO del jugador
-                const resUser = await fetch(`https://lichess.org/api/user/${usuario}`);
-                let eloInfo = "Datos de ELO no disponibles.";
-                if (resUser.ok) {
-                    const userData = await resUser.json();
-                    const blitz = userData.perfs?.blitz?.rating || 'N/A';
-                    const rapid = userData.perfs?.rapid?.rating || 'N/A';
-                    const puzzles = userData.perfs?.puzzle?.rating || 'N/A';
-                    eloInfo = `Blitz: ${blitz}, Rápido: ${rapid}, Puzzles: ${puzzles}`;
-                }
-
-                // 2. Obtener Partidas Recientes
-                btn.innerText = "🔍 Analizando partidas recientes...";
-                const partidasRecientes = await obtenerPartidasRecientes(usuario);
-                const historialTexto = partidasRecientes.length > 0 
-                    ? JSON.stringify(partidasRecientes, null, 2)
-                    : "No se pudieron recuperar partidas recientes.";
-
-                // 3. Crear el Prompt Maestro para Groq
-                const promptSistema = `
-Eres un Gran Maestro de Ajedrez y Entrenador de Élite.
-El usuario busca un análisis analítico, constructivo y directo basado en sus estadísticas reales de Lichess.
-
-DATOS EXTRAÍDOS EN VIVO DE LICHESS:
-- Usuario: ${usuario}
-- ELO Actual: ${eloInfo}
-- Tiempo que tiene para estudiar hoy: ${tiempo}
-- Quiere enfocarse en: ${enfoque}
-- Historial de sus últimas 10 partidas (Apertura, Resultado, Color jugado):
-${historialTexto}
-
-INSTRUCCIONES DE RESPUESTA (Debes usar formato Markdown fluido):
-
-1. 📊 **Análisis Crítico de sus Partidas Recientes:**
-   - Revisa sus últimos resultados. Analiza los datos de sus 10 partidas recientes enviadas. Si está perdiendo mucho, identifica patrones. Si va bien, enfócate en sus puntos flacos según su nivel de ELO actual.
-
-2. ♟️ **Diagnóstico de Aperturas:**
-   - **Apertura que más utiliza:** Identifica claramente la apertura que más se repite en su historial.
-   - **Recomendación del Coach:** Sugiérele una apertura o variante alternativa (con su nombre exacto) que se adapte mejor a su ELO actual para obtener mejores resultados y sorprender. Explica brevemente por qué le conviene probarla.
-
-3. 🎯 **Plan de Entrenamiento Personalizado (${tiempo}):**
-   - Diseña una rutina práctica paso a paso enfocada en el área elegida (${enfoque}) y orientada a corregir las fallas detectadas.
-
-4. 🔗 **Zona de Práctica en Lichess:**
-   - Otorga enlaces directos útiles (ej: https://lichess.org/training) para que empiece a practicar ahora mismo.
-`;
-
-                // 4. Conectar con la API de Groq
-                btn.innerText = "🤖 La IA está redactando el plan...";
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${groqKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'llama-3.3-70b-versatile',
-                        messages: [{ role: 'user', content: promptSistema }],
-                        temperature: 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error("Error en la clave de Groq o en la conexión.");
-                }
-
-                const data = await response.json();
-                const resultadoMarkdown = data.choices[0].message.content;
-
-                // 5. Mostrar el resultado bonito con Marked.js
-                output.innerHTML = marked.parse(resultadoMarkdown);
-                output.style.display = "block";
-
-            } catch (error) {
-                output.innerHTML = `<h3 style="color: #ff5252;">❌ Ocurrió un error</h3><p>${error.message}</p><p>Verifica que tu API Key de Groq sea correcta y que tu nombre de Lichess esté bien escrito.</p>`;
-                output.style.display = "block";
-            } finally {
-                // Restaurar el botón
-                btn.innerText = "🚀 Analizar ELO y Partidas";
-                btn.disabled = false;
-            }
+            // Mostrar mensaje de éxito con animación
+            const msj = document.getElementById("mensaje");
+            msj.style.display = "block";
+            
+            setTimeout(() => {
+                msj.style.display = "none";
+            }, 3000);
         }
     </script>
+
 </body>
 </html>
